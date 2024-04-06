@@ -18,6 +18,8 @@ app.get('/comic', cors(corsOptions), async (req, res) => {
     const idFrom = req.query.idFrom;
     const idTo = req.query.idTo;
 
+    // TODO: validate query parameters
+
     const idRange = _.range(idFrom, idTo);
     const promises = idRange.map(id => {
         return fetch(`https://xkcd.com/${id}/info.0.json`, {

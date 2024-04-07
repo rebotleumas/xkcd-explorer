@@ -2,10 +2,12 @@ const express = require('express');
 const cors = require('cors');
 const fetch = require('node-fetch');
 const _ = require('lodash');
+const NodeCache = require( "node-cache" ); 
 const Promise = require('promise');
 
 const PORT = 8443;
 const app = express();
+const comicCache = new NodeCache();
 
 app.use(cors());
 const corsOptions = {
@@ -22,12 +24,22 @@ app.get('/comic', cors(corsOptions), async (req, res) => {
 
     const idRange = _.range(idFrom, idTo);
     const promises = idRange.map(id => {
+        let comic = comicCache.get(id);
+        if (comic) {
+            console.log(`Retrieving comic number ${id} from cache...`);
+            return comic
+        }
+
         return fetch(`https://xkcd.com/${id}/info.0.json`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
           },
-        }).then(res => res.json());
+        }).then(res => {
+            let body = res.json();
+            comicCache.set(id, body, 3600);
+            return body
+        });
     });
 
     const jsonResponse = await Promise.all(promises);

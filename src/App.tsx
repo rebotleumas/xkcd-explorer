@@ -1,15 +1,13 @@
 import { Main } from './components/Main';
-import {
-  QueryClient,
-  QueryClientProvider,
-} from '@tanstack/react-query';
-
-const queryClient = new QueryClient();
+import { Header } from './components/Header';
 
 function App() {
-  return (<QueryClientProvider client={queryClient}>
+  return (
+    <div>
+      <Header />
       <Main />
-    </QueryClientProvider>)
+    </div>
+  )
 }
 
 export default App;

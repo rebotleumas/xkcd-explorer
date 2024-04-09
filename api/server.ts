@@ -14,23 +14,52 @@ const corsOptions = {
     origin: "http://localhost:5173"
 };
 
-const requestEndpoint = "https://xkcd.com/327/info.0.json";
+const getComicIdFromDate = async (date, end) => {
+  let start = 1;
+  let comic;
 
-app.get('/comic', cors(corsOptions), async (req, res) => {
-    const idFrom = req.query.idFrom;
-    const idTo = req.query.idTo;
+  while (start <= end) {
+    let mid = Math.floor((start + end) / 2);
 
-    // TODO: validate query parameters
+    if(mid === 404) {
+        continue;
+    }
+    comic = await fetchComic(mid);
+    const comicDate = comic.year + '-' + (Number(comic.month) < 10 ? '0'+comic.month : comic.month) + '-' + (Number(comic.day) < 10 ? '0'+comic.day : comic.day);
+    
+    if (comicDate === date) {
+      return comic.num;
+    }
 
-    const idRange = _.range(idFrom, idTo);
-    const promises = idRange.map(id => {
-        let comic = comicCache.get(id);
-        if (comic) {
-            console.log(`Retrieving comic number ${id} from cache...`);
-            return comic
-        }
+    if (Date.parse(date) < Date.parse(comicDate)) {
+      end = mid - 1;
+    } else {
+      start = mid + 1;
+    }
+  }
+  return comic.num;
+}
 
-        return fetch(`https://xkcd.com/${id}/info.0.json`, {
+const getRangeFromDate = async (dateFrom, dateTo) => {
+    const latestComic = await fetch(`https://xkcd.com/info.0.json`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+          },
+        }).then(res => {
+            let body = res.json();
+            return body
+        });
+
+    const end = latestComic.num;
+    const startId = await getComicIdFromDate(dateFrom, end);
+    const endId = await getComicIdFromDate(dateTo, end);
+
+    return _.range(startId, endId);
+}
+
+const fetchComic = (id) => {
+    return fetch(`https://xkcd.com/${id}/info.0.json`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
@@ -40,6 +69,31 @@ app.get('/comic', cors(corsOptions), async (req, res) => {
             comicCache.set(id, body, 3600);
             return body
         });
+}
+
+app.get('/comic', cors(corsOptions), async (req, res) => {
+    const idFrom = req.query.idFrom;
+    const idTo = req.query.idTo;
+    const dateFrom = req.query.dateFrom;
+    const dateTo = req.query.dateTo;
+    let idRange = [];
+
+    // TODO: validate query parameters
+    if (dateFrom && dateTo) {
+        idRange = await getRangeFromDate(dateFrom, dateTo);
+    }
+
+    if (idFrom && idTo) {
+        idRange = _.range(idFrom, idTo);
+    }
+    const promises = idRange.map(id => {
+        let comic = comicCache.get(id);
+        if (comic) {
+            console.log(`Retrieving comic number ${id} from cache...`);
+            return comic
+        }
+
+        return fetchComic(id);
     });
 
     const jsonResponse = await Promise.all(promises);

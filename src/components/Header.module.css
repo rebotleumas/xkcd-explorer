@@ -1,0 +1,18 @@
+.header {
+	width: 100%;
+	margin: 10px;
+}
+
+.headerNavItem {
+  display: inline-block;
+  margin-right: 50px;
+  background-color: gray;
+  color: white;
+  border-radius: 1vmin;
+  padding-left: 2vmin;
+  padding-right: 2vmin;
+}
+
+.listTitle {
+	color: white;
+}

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, forwardRef, useMemo } from 'react';
+import { useState, useCallback, useEffect, forwardRef, useMemo, useRef } from 'react';
 import reactLogo from './assets/react.svg';
 import viteLogo from '/vite.svg';
 import { getComic } from '../services/comic';
@@ -54,46 +54,56 @@ const ItemWrapper = ({ children, ...props }) => (
 );
 
 
-export const Main = () => {
+export const Main = ({ filter, setFilter }) => {
   const [comics, setComics] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const pageSize = 100;
+  const [offset, setOffset] = useState(1);
+  const [total, setTotal] = useState(0);
+  const pageSize = 10;
 
-  const loadMore = useCallback(() => {
+  const loadMore = (currentComics, currentOffset) => {
       setLoading(true);
-      getComic(page, page + pageSize)
+      getComic({...filter, idFrom: currentOffset, idTo: currentOffset + pageSize})
         .then(response => {
           return response.json();
         }).then(json => {
-          const newState = comics.concat(json);
+          const newState = currentComics.concat(json.comics);
+          setTotal(json.total);
           setComics(newState);
           setLoading(false);
-          setPage(page + pageSize);
         })
-  });
+  };
 
   useEffect(() => {
-    loadMore();
-  }, []);
+    loadMore([], 1);
+  }, [filter]);
+
+  useEffect(() => {
+    loadMore(comics, offset);
+  }, [offset]);
 
   return (
     <>
     <div className="card">
-      <h1>XKCD explorer</h1>
-      <VirtuosoGrid
-        style={{ height: 500, width: 900 }}
-        totalCount={1000}
-        data={comics}
-        useWindowScroll
-        components={gridComponents}  
-        endReached={loadMore}        
-        itemContent={(index) => {
-          return loading ? (<div>Loading</div>) : (<ItemWrapper>
-                        <ComicThumbNail comic={comics[index]}/>
-                      </ItemWrapper>)
-        }}
-      />
+      <h1>XKCD Explorer</h1>
+      {loading ? (<div>Loading</div>) : (<VirtuosoGrid
+              style={{ height: 500, width: 900 }}
+              totalCount={total}
+              data={comics}
+              useWindowScroll
+              components={gridComponents}  
+              increaseViewportBy={200}
+              endReached={(index) => {
+                if (index < total - 1) {
+                  setOffset(offset + pageSize)
+                }
+              }}        
+              itemContent={(index, comic) => {
+                return <ItemWrapper>
+                              <ComicThumbNail comic={comic}/>
+                            </ItemWrapper>
+              }}
+            />)}
     </div>
     </>
   )

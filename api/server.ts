@@ -40,7 +40,7 @@ const getComicIdFromDate = async (date, end) => {
   return comic.num;
 }
 
-const getRangeFromDate = async (dateFrom, dateTo) => {
+const getIdRangeFromDate = async (dateFrom, dateTo) => {
     const latestComic = await fetch(`https://xkcd.com/info.0.json`, {
           method: 'GET',
           headers: {
@@ -55,7 +55,7 @@ const getRangeFromDate = async (dateFrom, dateTo) => {
     const startId = await getComicIdFromDate(dateFrom, end);
     const endId = await getComicIdFromDate(dateTo, end);
 
-    return _.range(startId, endId);
+    return [startId, endId];
 }
 
 const fetchComic = (id) => {
@@ -76,20 +76,30 @@ app.get('/comic', cors(corsOptions), async (req, res) => {
     const idTo = req.query.idTo;
     const dateFrom = req.query.dateFrom;
     const dateTo = req.query.dateTo;
-    let idRange = [];
+    let startId = 0;
+    let endId = 0;
+    let total = 0;
 
     // TODO: validate query parameters
     if (dateFrom && dateTo) {
-        idRange = await getRangeFromDate(dateFrom, dateTo);
+        const startAndEndId = await getIdRangeFromDate(dateFrom, dateTo);
+        startId = startAndEndId[0];
+        endId = startAndEndId[1];
+        total = endId - startId;
+    }
+    
+    if (idFrom && idTo) {
+        startId += Number(idFrom);
+        endId = endId === 0 ? startId + Number(idTo) : Math.min(endId, startId + Number(idTo));
+        if (startId > 1) {
+            startId -= 1
+        }
     }
 
-    if (idFrom && idTo) {
-        idRange = _.range(idFrom, idTo);
-    }
+    const idRange = _.range(startId, endId);
     const promises = idRange.map(id => {
         let comic = comicCache.get(id);
         if (comic) {
-            console.log(`Retrieving comic number ${id} from cache...`);
             return comic
         }
 
@@ -97,7 +107,7 @@ app.get('/comic', cors(corsOptions), async (req, res) => {
     });
 
     const jsonResponse = await Promise.all(promises);
-    res.json(jsonResponse);
+    res.json({ 'comics': jsonResponse, 'total': total });
 });
 
 app.listen(PORT, () => {

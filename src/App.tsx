@@ -1,11 +1,15 @@
 import { Main } from './components/Main';
 import { Header } from './components/Header';
+import { useState } from 'react';
 
 function App() {
+  const currentDate = new Date();
+  const [filter, setFilter] = useState({ dateFrom: '2006-01-01', dateTo: currentDate.toISOString().split('T')[0]});
+  
   return (
     <div>
-      <Header />
-      <Main />
+      <Header setFilter={setFilter} filter={filter} />
+      <Main setFilter={setFilter} filter={filter} />
     </div>
   )
 }

@@ -41,16 +41,7 @@ const getComicIdFromDate = async (date, end) => {
 }
 
 const getIdRangeFromDate = async (dateFrom, dateTo) => {
-    const latestComic = await fetch(`https://xkcd.com/info.0.json`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-          },
-        }).then(res => {
-            let body = res.json();
-            return body
-        });
-
+    const latestComic = await fetchComic(-1);
     const end = latestComic.num;
     const startId = await getComicIdFromDate(dateFrom, end);
     const endId = await getComicIdFromDate(dateTo, end);
@@ -59,15 +50,23 @@ const getIdRangeFromDate = async (dateFrom, dateTo) => {
 }
 
 const fetchComic = (id) => {
-    return fetch(`https://xkcd.com/${id}/info.0.json`, {
+    const url = (id === -1) ? `https://xkcd.com/info.0.json` : `https://xkcd.com/${id}/info.0.json`;
+    return fetch(url, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
           },
         }).then(res => {
-            let body = res.json();
-            comicCache.set(id, body, 3600);
-            return body
+            if (res.ok) {
+                const body = res.json();
+                comicCache.set(id, body, 3600);
+                return body
+            } else {
+              throw `Failed to fetch id ${id}`;
+            }
+        }).catch(error => {
+            console.log(error);
+            return {}
         });
 }
 
@@ -86,6 +85,8 @@ app.get('/comic', cors(corsOptions), async (req, res) => {
         startId = startAndEndId[0];
         endId = startAndEndId[1];
         total = endId - startId;
+    } else {
+        total = (await fetchComic(-1)).num
     }
     
     if (idFrom && idTo) {

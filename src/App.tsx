@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 function App() {
   const currentDate = new Date();
-  const [filter, setFilter] = useState({ dateFrom: '2006-01-01', dateTo: currentDate.toISOString().split('T')[0]});
+  const [filter, setFilter] = useState({});
   
   return (
     <div>

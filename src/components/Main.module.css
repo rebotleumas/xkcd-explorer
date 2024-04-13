@@ -3,6 +3,7 @@
   padding: 2rem;
   text-align: center;
   margin: auto;
+  overflow-anchor: none;
 }
 
 #root {

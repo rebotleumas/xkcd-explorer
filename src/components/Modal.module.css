@@ -1,23 +1,22 @@
 .darkBG {
-  background-color: rgba(0, 0, 0, 0.75);
-  width: 100vw;
-  height: 100vh;
-  z-index: 0;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   position: absolute;
+  top: 0;
+  left: -100%;
+  width: 15000vw;
+  height: 10000vh;
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .centered {
   position: fixed;
-  top: 50%;
+  top: 60%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
 
 .modal {
   width: fit-content;
+  height: fit-content;
   background: white;
   color: white;
   z-index: 10;
@@ -35,7 +34,7 @@
 
 .heading {
   margin: 0;
-  padding: 10px;
+  padding: 20px;
   color: #2c3e50;
   font-weight: 500;
   font-size: 18px;
@@ -49,8 +48,8 @@
 }
 
 .modalImage {
-  max-width: 400px;
-  max-height: 400px;
+  max-width: 350px;
+  max-height: 350px;
 }
 
 .closeBtn {
@@ -61,4 +60,5 @@
   top: 0;
   background-color: white;
   outline: none;
+  margin: 2px;
 }

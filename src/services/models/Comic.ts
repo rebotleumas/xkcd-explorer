@@ -10,4 +10,11 @@ export type Comic = {
   img: string;
   title: string;
   day: string;
-}
+};
+
+export type Filter = {
+  idTo: number, 
+  idFrom: number, 
+  dateFrom: string, 
+  dateTo: string
+};

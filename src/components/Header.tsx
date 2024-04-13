@@ -3,7 +3,6 @@ import logoSvg from '../assets/filterlogo.svg';
 
 const FilterButton = ({ dateFrom, dateTo, filterLabel, setFilter }) => {
     return (<button
-            href="/" 
             className={styles.filterButton} 
             onClick={() => setFilter({dateFrom: dateFrom,dateTo: dateTo})}>
             {filterLabel}
@@ -27,8 +26,9 @@ export const Header = ({ setFilter, filter }): JSX.Element => {
 
     return (
         <header className={styles.header}>
+            <h3 className={styles.headerTitle}>XKCD Explorer</h3>
             <nav>
-                <ul>
+                <ul className={styles.listGroup}>
                     <li className={styles.headerNavItem}>
                         <FilterButton dateFrom={`${currentYear}-01-01`} dateTo={currentDate.toISOString().split('T')[0]} filterLabel={currentYear} setFilter={setFilter}/>
                     </li>
@@ -37,6 +37,12 @@ export const Header = ({ setFilter, filter }): JSX.Element => {
                     </li>
                     <li className={styles.headerNavItem}>
                         <FilterButton dateFrom={getFirstDateOfMonth(currentMonth-1, currentYear)} dateTo={getLastDateOfMonth(currentMonth-1, currentYear)} filterLabel={monthNames[(currentMonth-1)%12]} setFilter={setFilter}/>
+                    </li>
+                    <li className={styles.headerNavItem}>
+                        <FilterButton dateFrom={getFirstDateOfMonth(currentMonth-2, currentYear)} dateTo={getLastDateOfMonth(currentMonth-2, currentYear)} filterLabel={monthNames[(currentMonth-2)%12]} setFilter={setFilter}/>
+                    </li>
+                    <li className={styles.headerNavItem}>
+                        <button className={styles.clearFiltersButton} onClick={() => setFilter({})}>Clear filters</button>
                     </li>
                 </ul>
             </nav>

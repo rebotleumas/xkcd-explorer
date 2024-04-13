@@ -53,16 +53,18 @@ const ItemWrapper = ({ children, ...props }) => (
   </div>
 );
 
-
 export const Main = ({ filter, setFilter }) => {
   const [comics, setComics] = useState([]);
+  const [error, setError] = useState(undefined);
   const [loading, setLoading] = useState(false);
   const [offset, setOffset] = useState(1);
   const [total, setTotal] = useState(0);
-  const pageSize = 10;
+  const pageSize = 50;
 
   const loadMore = (currentComics, currentOffset) => {
-      setLoading(true);
+      if (currentOffset === 1) {
+        setLoading(true);
+      }
       getComic({...filter, idFrom: currentOffset, idTo: currentOffset + pageSize})
         .then(response => {
           return response.json();
@@ -71,7 +73,10 @@ export const Main = ({ filter, setFilter }) => {
           setTotal(json.total);
           setComics(newState);
           setLoading(false);
-        })
+        }).catch(error => {
+          setError(error);
+          setLoading(false);
+      });
   };
 
   useEffect(() => {
@@ -85,12 +90,14 @@ export const Main = ({ filter, setFilter }) => {
   return (
     <>
     <div className="card">
-      <h1>XKCD Explorer</h1>
-      {loading ? (<div>Loading</div>) : (<VirtuosoGrid
-              style={{ height: 500, width: 900 }}
+      {loading ? (<div>Loading...</div>) : 
+      error ? (<div>Something went wrong. Please try to refresh the page.</div>) : 
+            (<VirtuosoGrid
+              style={{ height: 500, width: 900, overflowAnchor: "none" }}
               totalCount={total}
               data={comics}
               useWindowScroll
+              key={Math.random()}
               components={gridComponents}  
               increaseViewportBy={200}
               endReached={(index) => {
@@ -99,9 +106,7 @@ export const Main = ({ filter, setFilter }) => {
                 }
               }}        
               itemContent={(index, comic) => {
-                return <ItemWrapper>
-                              <ComicThumbNail comic={comic}/>
-                            </ItemWrapper>
+                return <ItemWrapper><ComicThumbNail comic={comic}/></ItemWrapper>
               }}
             />)}
     </div>

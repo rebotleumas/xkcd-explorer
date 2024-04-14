@@ -43,7 +43,7 @@ export const Header = ({ setFilter, filter }): JSX.Element => {
                         <FilterButton dateFrom={getFirstDateOfMonth(currentMonth-2, currentYear)} dateTo={getLastDateOfMonth(currentMonth-2, currentYear)} filterLabel={monthNames[(currentMonth-2)%12]} setFilter={setFilter}/>
                     </li>
                     <li className={styles.headerNavItem}>
-                        <button className={styles.clearFiltersButton} onClick={() => setFilter({})}>Clear filters</button>
+                        <button className={styles.clearFiltersButton} onClick={() => setFilter({})} data-cy="clear-filter-button">Clear filters</button>
                     </li>
                 </ul>
             </nav>

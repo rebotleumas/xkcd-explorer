@@ -22,5 +22,37 @@ describe('xkcd explorer', () => {
     cy.get('[data-cy="thumbnail"]').first().click();
     cy.get('[data-cy="modal"]').should('exist');
     cy.contains('Eclipse Coolness (2024-04-01)');
-  })
+  });
+
+  it('can clear filters', () => {
+    cy.get('[data-cy="filter-button-april"]').should('exist');
+    cy.get('[data-cy="filter-button-april"]').click();
+    cy.get('[data-cy="thumbnail"]').first().click();
+    cy.get('[data-cy="modal"]').should('exist');
+    cy.contains('Eclipse Coolness (2024-04-01)');
+    cy.get('[data-cy="modal-close-button"]').should('exist');
+    cy.get('[data-cy="modal-close-button"]').click();
+    cy.get('[data-cy="clear-filter-button"]').should('exist');
+    cy.get('[data-cy="clear-filter-button"]').click();
+    cy.get('[data-cy="thumbnail"]').first().should('exist');
+    cy.get('[data-cy="thumbnail"]').first().click();
+    cy.get('[data-cy="modal"]').should('exist');
+    cy.contains('Barrel - Part 1 (2006-01-01)');
+  });
+
+  it('shows an error when server is down', () => {
+    cy.get('[data-cy="filter-button-april"]').should('exist');
+    cy.get('[data-cy="filter-button-april"]').click();
+    cy.get('[data-cy="thumbnail"]').first().click();
+    cy.get('[data-cy="modal"]').should('exist');
+    cy.contains('Eclipse Coolness (2024-04-01)');
+    cy.get('[data-cy="modal-close-button"]').should('exist');
+    cy.get('[data-cy="modal-close-button"]').click();
+    cy.get('[data-cy="clear-filter-button"]').should('exist');
+    cy.get('[data-cy="clear-filter-button"]').click();
+    cy.get('[data-cy="thumbnail"]').first().should('exist');
+    cy.get('[data-cy="thumbnail"]').first().click();
+    cy.get('[data-cy="modal"]').should('exist');
+    cy.contains('Barrel - Part 1 (2006-01-01)');
+  });
 })

@@ -14,6 +14,10 @@ const corsOptions = {
     origin: "http://localhost:5173"
 };
 
+const getComicDate = (comic) => {
+    return comic.year + '-' + (Number(comic.month) < 10 ? '0'+comic.month : comic.month) + '-' + (Number(comic.day) < 10 ? '0'+comic.day : comic.day);
+}
+
 const getComicIdFromDate = async (date, end) => {
   let start = 1;
   let comic;
@@ -25,8 +29,8 @@ const getComicIdFromDate = async (date, end) => {
         continue;
     }
     comic = await fetchComic(mid);
-    const comicDate = comic.year + '-' + (Number(comic.month) < 10 ? '0'+comic.month : comic.month) + '-' + (Number(comic.day) < 10 ? '0'+comic.day : comic.day);
-    
+    const comicDate = getComicDate(comic);
+
     if (comicDate === date) {
       return comic.num;
     }
@@ -37,6 +41,7 @@ const getComicIdFromDate = async (date, end) => {
       start = mid + 1;
     }
   }
+
   return comic.num;
 }
 
@@ -44,7 +49,12 @@ const getIdRangeFromDate = async (dateFrom, dateTo) => {
     const latestComic = await fetchComic(-1);
     const end = latestComic.num;
     const startId = await getComicIdFromDate(dateFrom, end);
-    const endId = await getComicIdFromDate(dateTo, end);
+    let endId;
+    if (Date.parse(dateTo) > Date.parse(getComicDate(latestComic))) {
+        endId = end;
+    } else {
+        endId = await getComicIdFromDate(dateTo, end);
+    }
 
     return [startId, endId];
 }
@@ -97,8 +107,9 @@ app.get('/comic', cors(corsOptions), async (req, res) => {
         }
     }
 
-    const idRange = _.range(startId, endId);
+    const idRange = _.range(startId, endId+1);
     const promises = idRange.map(id => {
+        console.log(id);
         let comic = comicCache.get(id);
         if (comic) {
             return comic
@@ -107,8 +118,8 @@ app.get('/comic', cors(corsOptions), async (req, res) => {
         return fetchComic(id);
     });
 
-    const jsonResponse = await Promise.all(promises);
-    res.json({ 'comics': jsonResponse, 'total': total });
+    const comics = await Promise.all(promises);
+    res.json({ 'comics': comics, 'total': total });
 });
 
 app.listen(PORT, () => {

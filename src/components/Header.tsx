@@ -4,6 +4,7 @@ import logoSvg from '../assets/filterlogo.svg';
 const FilterButton = ({ dateFrom, dateTo, filterLabel, setFilter }) => {
     return (<button
             className={styles.filterButton} 
+            data-cy={`filter-button-${filterLabel.toLowerCase()}`}
             onClick={() => setFilter({dateFrom: dateFrom,dateTo: dateTo})}>
             {filterLabel}
         </button>);
@@ -30,7 +31,7 @@ export const Header = ({ setFilter, filter }): JSX.Element => {
             <nav>
                 <ul className={styles.listGroup}>
                     <li className={styles.headerNavItem}>
-                        <FilterButton dateFrom={`${currentYear}-01-01`} dateTo={currentDate.toISOString().split('T')[0]} filterLabel={currentYear} setFilter={setFilter}/>
+                        <FilterButton dateFrom={`${currentYear}-01-01`} dateTo={currentDate.toISOString().split('T')[0]} filterLabel={currentYear.toString()} setFilter={setFilter}/>
                     </li>
                     <li className={styles.headerNavItem}>
                         <FilterButton dateFrom={getFirstDateOfMonth(currentMonth, currentYear)} dateTo={getLastDateOfMonth(currentMonth, currentYear)} filterLabel={monthNames[currentMonth]} setFilter={setFilter}/>

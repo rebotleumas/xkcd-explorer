@@ -93,7 +93,7 @@ export const Main = ({ filter, setFilter }) => {
       {loading ? (<div>Loading...</div>) : 
       error ? (<div>Something went wrong. Please try to refresh the page.</div>) : 
             (<VirtuosoGrid
-              style={{ height: 500, width: 900, overflowAnchor: "none" }}
+              style={{ height: 500, width: 900 }}
               totalCount={total}
               data={comics}
               useWindowScroll

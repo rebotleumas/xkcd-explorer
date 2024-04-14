@@ -109,7 +109,6 @@ app.get('/comic', cors(corsOptions), async (req, res) => {
 
     const idRange = _.range(startId, endId+1);
     const promises = idRange.map(id => {
-        console.log(id);
         let comic = comicCache.get(id);
         if (comic) {
             return comic
